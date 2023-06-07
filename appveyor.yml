@@ -28,9 +28,8 @@ build_script:
         (if not exist cygwinpkg mkdir cygwinpkg) &&
         (if not exist cygwinpkg\setup-x86_64.exe curl -o cygwinpkg\setup-x86_64.exe https://cygwin.com/setup-x86_64.exe) &&
         (c:\cygwin64\bin\cygcheck -V) &&
-        (cygwinpkg\setup-x86_64.exe -r -q -l cygwinpkg -g) &&
+        (dir c:\cygwin64) &&
         (c:\cygwin64\setup-x86_64.exe -qnNdO -s http://cygwin.mirror.constant.com -P cygwin=3.5.0-0.260.gb5b67a65f87c) &&
-        (rem cygwinpkg\setup-x86_64.exe -r -q -l cygwinpkg -P cygwin=3.5.0-0.260.gb5b67a65f87c) &&
         (c:\cygwin64\bin\cygcheck -V)
         ) else (echo > NUL)'
 test_script:

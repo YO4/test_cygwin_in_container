@@ -1,0 +1,42 @@
+version: 1.0.{build}
+image:
+- Visual Studio 2019
+configuration:
+- release
+- test
+cache:
+  -  cygwinpkg
+environment:
+  global:
+    APPVEYOR_SAVE_CACHE_ON_ERROR: true
+    SAVE_ARTIFACT: false
+  matrix:
+  - container_tag: ltsc2019
+    isolation: process
+  - container_tag: ltsc2019
+    isolation: hyperv
+matrix:
+  allow_failures:
+    - container_tag: ltsc2019
+      isolation: process
+    - container_tag: ltsc2019
+      isolation: hyperv
+install:
+  - cmd: '
+      if %configuration% == test (
+        (if not exist cygwinpkg mkdir cygwinpkg) &&
+        (if not exist cygwinpkg\setup-x86_64.exe curl -o cygwinpkg\setup-x86_64.exe https://cygwin.com/setup-x86_64.exe) &&
+        (setup-x86_64.exe -r -q -l cygwinpkg -P cygwin=3.5.0-0.260.gb5b67a65f87c)
+        ) else (echo > NUL)'
+build_script:
+test_script:
+  - cmd: |
+      mkdir binded_dir
+      mkdir opt
+      copy test_rm_and_mv.cmd opt
+      set SAVE_ARTIFACT=true
+      cmd /V:ON /s /c "docker run --isolation=%isolation% -v c:\cygwin64:c:\cygwin64 -v %APPVEYOR_BUILD_FOLDER%\binded_dir:c:\binded_dir -v %APPVEYOR_BUILD_FOLDER%\opt:c:\opt mcr.microsoft.com/windows/servercore:%container_tag% cmd.exe /c c:\opt\test_rm_and_mv.cmd & set result=!ERRORLEVEL! & echo; & echo === host environment & ver & echo; & echo === test complete & exit /b !result!"
+artifacts:
+- path: opt\*.trace
+on_failure:
+- if %SAVE_ARTIFACT%==true for %%I in (opt\*.trace) do appveyor PushArtifact %%I

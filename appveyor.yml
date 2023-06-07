@@ -22,13 +22,13 @@ matrix:
     - container_tag: ltsc2019
       isolation: hyperv
 install:
+build_script:
   - cmd: '
       if %configuration% == test (
         (if not exist cygwinpkg mkdir cygwinpkg) &&
         (if not exist cygwinpkg\setup-x86_64.exe curl -o cygwinpkg\setup-x86_64.exe https://cygwin.com/setup-x86_64.exe) &&
         (setup-x86_64.exe -r -q -l cygwinpkg -P cygwin=3.5.0-0.260.gb5b67a65f87c)
         ) else (echo > NUL)'
-build_script:
 test_script:
   - cmd: |
       mkdir binded_dir
